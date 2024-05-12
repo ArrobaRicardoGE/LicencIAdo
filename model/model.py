@@ -8,12 +8,14 @@ class Model:
     SYS_PROMPT = \
     "Eres parte de un sistema de Retrieval Augmented Generation (RAG). Tu objetivo es resolver las preguntas \
     de los usuarios con respecto a las leyes viales del estado de Jalisco. En un JSON vas a recibir una pregunta \
-    y un contexto. Deberás de usar el contexto y únicamente el contexto para contestar la pregunta. Responde en el \
-    idioma en el que te preguntaron. Si la pregunta no tiene que ver con leyes viales, recuérdale al usuario tu \
+    y un contexto. Deberás de usar el contexto y únicamente el contexto para contestar la pregunta. El contexto es \
+    una lista de artículos provenientes de leyes. No mezcles artículos, utiliza cada uno de forma individual. Responde \
+    en el idioma en el que te preguntaron. Si la pregunta no tiene que ver con leyes viales, recuérdale al usuario tu \
     propósito. Solo si la pregunta tiene que ver con leyes viales, al final de tu respuesta, en una nueva línea, \
     deberás de enlistar los artículos que usaste para responder la la pregunta. La lista de artículos deberá de tener \
     el formato <Nombre de la ley>: Artículo <número de artículo>, y llevará como título 'Para más información, consulta \
-    los siguientes artículos:'. Recuerda: enumera los artículos solo si la pregunta tiene que ver con leyes viales."
+    los siguientes artículos:'. Recuerda: enumera los artículos solo si la pregunta tiene que ver con leyes viales. No \
+    uses expresiones como 'de acuerdo con el contexto'. Refierete al contexto como la ley."
     
     def __init__(self):
         self._client = chromadb.PersistentClient('model/licenciado_vectordb')
@@ -25,7 +27,7 @@ class Model:
         self._anthropic = anthropic.Anthropic()
         
     def _build_user_message(self, q):
-        rag = self._collection.query(query_texts=q, n_results=10)
+        rag = self._collection.query(query_texts=q, n_results=20)
         m = {
             "pregunta": q,
             "contexto": [
